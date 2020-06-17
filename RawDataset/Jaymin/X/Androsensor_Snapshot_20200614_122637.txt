@@ -1,0 +1,37 @@
+Androsensor Sensor Snapshot
+2020/06/14 12:26:37
+
+ACCELEROMETER: ( 0.2mA )
+	x:-1.501754 m/s²
+	y:-0.395407 m/s²
+	z:+8.024163 m/s²
+	Σ:+8.173054 m/s²
+
+LINEAR ACCELERATION: ( 0.5mA )
+	x:+0.656391 m/s²
+	y:-0.682352 m/s²
+	z:-2.077156 m/s²
+	Σ:+2.282768 m/s²
+
+GYROSCOPE: ( 0.9mA ) 
+	X:+0.723139 rad/s
+	Y:-0.690270 rad/s
+	Z:+0.119382 rad/s
+
+MAGNETIC FIELD: ( 1.1mA )
+	X:-22.9467 μT
+	Y:+10.6381 μT
+	Z:-34.7049 μT
+	Σ:+42.9436 μT
+
+BATTERY STATUS: 
+	Temperature: 99.7 °F 
+	Level: 32.0% 
+	Voltage: 3.769 Volt 
+	Status: Discharging 
+	Health: Good 
+	Technology: Li-poly
+
+DATE - TIME: 
+	2020-06-14 12:26:37:094
+
