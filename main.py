@@ -31,7 +31,7 @@ def input_pipeline(test_samples, split):
     cnt = 0
     for name in list_ds:
         try:
-            label = str(name.numpy())[20]
+            label = str(name.numpy())[21]
             X = (pd.read_csv(Path(str(name.numpy(), 'utf-8'))).values)
             X = MinMaxScaler(feature_range=(-1, 1)).fit_transform(X)
             X = StandardScaler().fit_transform(X)
