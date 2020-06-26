@@ -9,12 +9,12 @@ CLASSES = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
 
 if __name__ == "__main__":
     for c in CLASSES:
-        PATH = Path(f'C:/Users/Deep Raval/Desktop/ProcessedDataset2/{c}/')
+        PATH = Path(f'C:/Users/Deep Raval/Desktop/Projects/Character-Prediction-Using-Mobile-Sensors/ETD/{c}/')
         cnt = 0
         lbl = c        
         files = list()
         for f in os.listdir(PATH):
-            files.append(f'C:/Users/Deep Raval/Desktop/ProcessedDataset2/{c}/' + str(f))
+            files.append(f'C:/Users/Deep Raval/Desktop/Projects/Character-Prediction-Using-Mobile-Sensors/ETD/{c}/' + str(f))
         take = ['ACCELEROMETER X (m/s²)',
                 'ACCELEROMETER Y (m/s²)',
                 'ACCELEROMETER Z (m/s²)',

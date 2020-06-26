@@ -19,11 +19,6 @@ CLASSES = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
            'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
            'U', 'V', 'W', 'X', 'Y', 'Z']
 
-def process_path(file_path):
-    print(type(file_path))
-    print(StringIO(str(file_path.numpy(), 'utf-8')))
-    return tf.io.read_file(file_path), tf.strings.split(file_path, os.sep)[-2]
-
 def input_pipeline(test_samples, split):   
     list_ds = tf.data.Dataset.list_files(str(ROOT/'*/*.csv'))
     labeled_ds = None
@@ -33,7 +28,7 @@ def input_pipeline(test_samples, split):
     tsdone = False
     for name in list_ds:
         try:
-            label = str(name.numpy())[21]
+            label = str(name.numpy())[str(name.numpy()).find('\\') + 2]
             X = (pd.read_csv(Path(str(name.numpy(), 'utf-8'))).values)
             X = MinMaxScaler(feature_range=(-1, 1)).fit_transform(X)
             X = StandardScaler().fit_transform(X)
@@ -73,34 +68,42 @@ def input_pipeline(test_samples, split):
     print('------------------------------------------------------')
     return dataset_list
      
-def train_model_V1(dataset, epochs):  
-    '''
-    model = tf.keras.models.load_model('model.h5')
-    print('Testing Stats FINAL:')
-    model.evaluate(dataset[0])
+def test_model(dataset, model_name):
+    model = tf.keras.models.load_model(model_name)
+    print(model.summary())
+    total, cnt = 0. , 0.
+    for d in dataset:
+        try:
+            res = model.evaluate(d)
+            total += res[1]
+            cnt += 1
+        except Exception:
+            pass
+    print('Avg Accuracy : ', total / cnt)
     return  
-    '''
+    
+def train_model_V1(dataset, epochs):  
     model = Sequential([
         LSTM(144, return_sequences = True, input_shape = (None, 12)),
-        LSTM(90, return_sequences = False, dropout = 0.2),
-        Dense(72, activation = "tanh"),
-        Dropout(0.1),
+        LSTM(100, return_sequences = False, dropout = 0.25),
+        Dense(80, activation = "tanh"),
+        Dropout(0.15),
         Dense(36, activation = "softmax")
     ])
     loss_fn = tf.keras.losses.CategoricalCrossentropy()
-    #optimizer = tf.keras.optimizers.SGD(learning_rate = 0.01, nesterov = True)
-    optimizer = tf.keras.optimizers.RMSprop()
+    optimizer = tf.keras.optimizers.Adam()
     model.compile(loss = loss_fn, optimizer = optimizer, metrics = ["accuracy"])
     for ep in range(epochs):
         for i in range(1, len(dataset)):
             model.fit(dataset[i])
+        print()
         print(f'Testing after epoch no. {ep}')
         model.evaluate(dataset[0])
-
-    print('Testing Stats FINAL:')
-    model.evaluate(dataset[0])
+        print()
+        
     model.save('model.h5')
     
 if __name__ == "__main__":	
-    tfds_list = input_pipeline(250, 500)
-    train_model_V1(tfds_list, 10)
+    tfds_list = input_pipeline(500, 500)
+    train_model_V1(tfds_list, 5)
+    test_model(tfds_list, 'model.h5')
