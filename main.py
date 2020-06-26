@@ -28,7 +28,9 @@ def input_pipeline(test_samples, split):
     list_ds = tf.data.Dataset.list_files(str(ROOT/'*/*.csv'))
     labeled_ds = None
     dataset_list = []
+    cf = []
     cnt = 0
+    tsdone = False
     for name in list_ds:
         try:
             label = str(name.numpy())[21]
@@ -46,26 +48,43 @@ def input_pipeline(test_samples, split):
             else:
                 labeled_ds = labeled_ds.concatenate(tf.data.Dataset.from_tensor_slices((X, Y))) 
         except Exception as e:
-            print(str(name.numpy()))
+            cf.append(str(name.numpy(), 'utf-8'))
         
         if cnt % split == 0:
             dataset_list.append(labeled_ds)
             labeled_ds = None
             
-        if cnt == test_samples:
+        if cnt == test_samples and not tsdone:
             dataset_list.append(labeled_ds)
             labeled_ds = None
-            test_samples = -1
             cnt = 0
+            tsdone = True
             
     dataset_list.append(labeled_ds)
+    print('------------------------------------------------------')
+    if(len(cf) != 0):
+        print()
+        print('*** Corrupted File(s) Found! ***')
+        for i in range(len(cf)):
+            print(f'{i+1}. {cf[i]}')
+        print()
+    print(f'Total Samples found : {cnt + test_samples}')
+    print(f'Using for Test : {test_samples}')
+    print('------------------------------------------------------')
     return dataset_list
      
-def train_model_V1(dataset, epochs):    
+def train_model_V1(dataset, epochs):  
+    '''
+    model = tf.keras.models.load_model('model.h5')
+    print('Testing Stats FINAL:')
+    model.evaluate(dataset[0])
+    return  
+    '''
     model = Sequential([
         LSTM(144, return_sequences = True, input_shape = (None, 12)),
-        LSTM(90, return_sequences = False),
+        LSTM(90, return_sequences = False, dropout = 0.2),
         Dense(72, activation = "tanh"),
+        Dropout(0.1),
         Dense(36, activation = "softmax")
     ])
     loss_fn = tf.keras.losses.CategoricalCrossentropy()
@@ -84,4 +103,4 @@ def train_model_V1(dataset, epochs):
     
 if __name__ == "__main__":	
     tfds_list = input_pipeline(250, 500)
-    train_model_V1(tfds_list, 5)
+    train_model_V1(tfds_list, 10)
