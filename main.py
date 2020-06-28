@@ -133,7 +133,7 @@ def train_model_V2(dataset, epochs):
     
 if __name__ == "__main__":	
     use_gpu(False)
-    tfds_list = input_pipeline(250, 1000)
+    tfds_list = input_pipeline(576, 897)
     #train_model_V1(tfds_list, 30)
     test_model(tfds_list, 'V1_86acc.h5')
 
@@ -142,7 +142,6 @@ if __name__ == "__main__":
 Record during training:
     # Loss
     # Accuracy
-    # Val Loss, accuracy ?
 Evaluation methods:
     # Confusion Matrix
     # F1 Score
