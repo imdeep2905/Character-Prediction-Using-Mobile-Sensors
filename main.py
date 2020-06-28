@@ -12,7 +12,9 @@ from io import StringIO
 import os
 
 
-ROOT = Path("./ProcessedDataset2")
+ROOT = Path("./ProcessedDataset3")
+#ROOT = Path("./ETD")
+
 
 CLASSES = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 
@@ -89,9 +91,8 @@ def test_model(dataset, model_name):
 def train_model_V1(dataset, epochs):  
     model = Sequential([
         LSTM(144, return_sequences = True, input_shape = (None, 12)),
-        LSTM(100, return_sequences = False, dropout = 0.25),
-        Dense(80, activation = "tanh"),
-        Dropout(0.15),
+        LSTM(100, return_sequences = False, dropout = 0.15),
+        Dense(80, activation = "elu"),
         Dense(36, activation = "softmax")
     ])
     loss_fn = tf.keras.losses.CategoricalCrossentropy()
@@ -132,6 +133,19 @@ def train_model_V2(dataset, epochs):
     
 if __name__ == "__main__":	
     use_gpu(False)
-    tfds_list = input_pipeline(250, 500)
-    train_model_V1(tfds_list, 30)
-    #test_model(tfds_list, 'model.h5')
+    tfds_list = input_pipeline(250, 1000)
+    #train_model_V1(tfds_list, 30)
+    test_model(tfds_list, 'V1_86acc.h5')
+
+
+'''
+Record during training:
+    # Loss
+    # Accuracy
+    # Val Loss, accuracy ?
+Evaluation methods:
+    # Confusion Matrix
+    # F1 Score
+    # Precision / Recall
+    # Acc , Loss
+'''
