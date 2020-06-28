@@ -96,16 +96,10 @@ def test_model(dataset, model_name):
     return  
     
 def train_model_V1(dataset, epochs):  
-    '''
     model = Sequential([
         LSTM(144, return_sequences = True, input_shape = (None, 12)),
         LSTM(100, return_sequences = False, dropout = 0.15),
         Dense(80, activation = "elu"),
-        Dense(36, activation = "softmax")
-    ])
-    '''
-    model = Sequential([
-        LSTM(1, return_sequences = False, input_shape = (None, 12)),
         Dense(36, activation = "softmax")
     ])
     loss_fn = tf.keras.losses.CategoricalCrossentropy()
