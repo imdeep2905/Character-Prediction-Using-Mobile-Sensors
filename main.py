@@ -11,10 +11,7 @@ from pathlib import Path
 from io import StringIO
 import os
 
-
 ROOT = Path("./ProcessedDataset3")
-#ROOT = Path("./ETD")
-
 
 CLASSES = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 
@@ -25,7 +22,12 @@ def use_gpu(gpu):
     if not gpu:
         os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
-def input_pipeline(test_samples, split):   
+def input_pipeline(split, test = False):   
+    if test:
+        ROOT = Path("./UnseenTest")
+    else:
+        ROOT = Path("./ProcessedDataset3")
+        
     list_ds = tf.data.Dataset.list_files(str(ROOT/'*/*.csv'))
     labeled_ds = None
     dataset_list = []
@@ -55,13 +57,8 @@ def input_pipeline(test_samples, split):
             dataset_list.append(labeled_ds)
             labeled_ds = None
             
-        if cnt == test_samples and not tsdone:
-            dataset_list.append(labeled_ds)
-            labeled_ds = None
-            cnt = 0
-            tsdone = True
-            
-    dataset_list.append(labeled_ds)
+    if(labeled_ds != None):
+        dataset_list.append(labeled_ds)
     print('------------------------------------------------------')
     if(len(cf) != 0):
         print()
@@ -69,12 +66,22 @@ def input_pipeline(test_samples, split):
         for i in range(len(cf)):
             print(f'{i+1}. {cf[i]}')
         print()
-    print(f'Total Samples found : {cnt + test_samples}')
-    print(f'Using for Test : {test_samples}')
+    if test:
+        print(f'Total Samples found : {cnt}')
+        print('Using all samples for testing.')
+        print(f'Dataset will have {len(dataset_list)} part(s).')
+    else:
+        print(f'Total Samples found : {cnt}')
+        print('Using all samples for training.')
+        print(f'Dataset will have {len(dataset_list)} part(s).')
     print('------------------------------------------------------')
     return dataset_list
      
 def test_model(dataset, model_name):
+    '''
+    #TODO
+        Change test_model such that it can do confusion matrix, F1, PR, LOC etc...
+    '''
     model = tf.keras.models.load_model(model_name)
     print(model.summary())
     total, cnt = 0. , 0.
@@ -89,31 +96,16 @@ def test_model(dataset, model_name):
     return  
     
 def train_model_V1(dataset, epochs):  
+    '''
     model = Sequential([
         LSTM(144, return_sequences = True, input_shape = (None, 12)),
         LSTM(100, return_sequences = False, dropout = 0.15),
         Dense(80, activation = "elu"),
         Dense(36, activation = "softmax")
     ])
-    loss_fn = tf.keras.losses.CategoricalCrossentropy()
-    optimizer = tf.keras.optimizers.Adam()
-    model.compile(loss = loss_fn, optimizer = optimizer, metrics = ["accuracy"])
-    print(model.summary())
-    for ep in range(epochs):
-        for i in range(1, len(dataset)):
-            model.fit(dataset[i])
-        print()
-        print(f'Testing after epoch no. {ep}')
-        res = model.evaluate(dataset[0])
-        model.save('V1model.h5')
-        print(f'Current model saved with Acc = {res[1]} (on Test)')
-        print()
-        
-    model.save('V1model.h5')
-    
-def train_model_V2(dataset, epochs):  
+    '''
     model = Sequential([
-        LSTM(144, return_sequences = False, input_shape = (None, 12), implementation = 1),
+        LSTM(1, return_sequences = False, input_shape = (None, 12)),
         Dense(36, activation = "softmax")
     ])
     loss_fn = tf.keras.losses.CategoricalCrossentropy()
@@ -121,21 +113,29 @@ def train_model_V2(dataset, epochs):
     model.compile(loss = loss_fn, optimizer = optimizer, metrics = ["accuracy"])
     print(model.summary())
     for ep in range(epochs):
-        for i in range(1, len(dataset)):
-            model.fit(dataset[i])
+        avgacc = 0.
+        for ds in dataset:
+            result = model.fit(ds)
+            with open('log.csv', mode = 'a') as f:
+                f.write(f"{ep},{result.history['loss'][0]},{result.history['accuracy'][0]}\n")
+                avgacc += result.history['accuracy'][0]
         print()
-        print(f'Testing after epoch no. {ep}')
-        model.evaluate(dataset[0])
-        model.save('V2model.h5')
+        print(f'Completed epoch. {ep} ')
+        model.save('V1_model.h5')
+        print(f'Current model saved with Acc = {avgacc / len(dataset)}')
         print()
         
-    model.save('V2model.h5')
-    
+    model.save('V1_MODEL.h5')
+        
 if __name__ == "__main__":	
-    use_gpu(False)
-    tfds_list = input_pipeline(576, 897)
-    #train_model_V1(tfds_list, 30)
-    test_model(tfds_list, 'V1_86acc.h5')
+    try:
+        os.remove('log.csv')
+    except Exception:
+        pass
+    use_gpu(False   )
+    #DO NOT CHANGE ANYTHING STARTING FROM HERE!
+    train_model_V1(input_pipeline(897), 1)
+    #test_model(input_pipeline(576, test = True), 'V1_model.h5')
 
 
 '''
