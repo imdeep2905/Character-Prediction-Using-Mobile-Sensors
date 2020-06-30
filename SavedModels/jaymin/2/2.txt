@@ -1,0 +1,28 @@
+def train_model_V1(dataset, epochs):  
+    model = Sequential([
+        LSTM(100,return_sequences = True, batch_input_shape = (1,None, 12),stateful=True),
+        LSTM(100, return_sequences = False),
+        Dense(64, activation = "tanh"),
+        Dropout(0.15),
+        Dense(36, activation = "softmax")
+    ])
+    loss_fn = tf.keras.losses.CategoricalCrossentropy()
+    optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
+    model.compile(loss = loss_fn, optimizer = optimizer, metrics = ["accuracy"])
+    print(model.summary())
+    for ep in range(epochs):
+        avgacc = 0.
+        model.reset_states()
+        for ds in dataset:
+            result = model.fit(ds)
+            with open('log.csv', mode = 'a') as f:
+                f.write(f"{ep},{result.history['loss'][0]},{result.history['accuracy'][0]}\n")
+                avgacc += result.history['accuracy'][0]
+        print()
+        print(f'Completed epoch. {ep} ')           
+        print(f'Curre=nt model saved with Acc = {avgacc / len(dataset)}')
+        a = str(ep)
+        a+=".h5"
+        model.save(a)
+        print()
+        
