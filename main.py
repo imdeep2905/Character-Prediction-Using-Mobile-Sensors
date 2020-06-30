@@ -97,9 +97,10 @@ def test_model(dataset, model_name):
     
 def train_model_V1(dataset, epochs):  
     model = Sequential([
-        LSTM(144, return_sequences = True, input_shape = (None, 12)),
-        LSTM(100, return_sequences = False, dropout = 0.15),
-        Dense(80, activation = "elu"),
+        GRU(144, return_sequences = True, input_shape = (None, 12), recurrent_dropout = 0.15),
+        GRU(90, return_sequences = False, dropout = 0.20, recurrent_dropout = 0.10),
+        Dense(72, activation = "elu"),
+        Dropout(0.15),
         Dense(36, activation = "softmax")
     ])
     loss_fn = tf.keras.losses.CategoricalCrossentropy()
@@ -115,22 +116,39 @@ def train_model_V1(dataset, epochs):
                 avgacc += result.history['accuracy'][0]
         print()
         print(f'Completed epoch. {ep} ')
-        model.save('V1_model.h5')
+        model.save('current_new.h5')
         print(f'Current model saved with Acc = {avgacc / len(dataset)}')
         print()
         
-    model.save('V1_MODEL.h5')
-        
+def continue_training(name, dataset, epochs, offset = 0):
+    model = keras.models.load_model(name)
+    loss_fn = tf.keras.losses.CategoricalCrossentropy()
+    optimizer = tf.keras.optimizers.Adam()
+    model.compile(loss = loss_fn, optimizer = optimizer, metrics = ["accuracy"])
+    print(model.summary())
+    for ep in range(epochs):
+        avgacc = 0.
+        for ds in dataset:
+            result = model.fit(ds)
+            with open('log.csv', mode = 'a') as f:
+                f.write(f"{ep + offset},{result.history['loss'][0]},{result.history['accuracy'][0]}\n")
+                avgacc += result.history['accuracy'][0]
+        print()
+        print(f'Completed epoch. {ep + offset} ')
+        model.save(name)
+        print(f'Current model saved with Acc = {avgacc / len(dataset)}')
+        print()
+    
 if __name__ == "__main__":	
     try:
         os.remove('log.csv')
     except Exception:
         pass
-    use_gpu(False   )
+    use_gpu(False)
     #DO NOT CHANGE ANYTHING STARTING FROM HERE!
-    train_model_V1(input_pipeline(897), 1)
-    #test_model(input_pipeline(576, test = True), 'V1_model.h5')
-
+    #continue_training('1.h5', input_pipeline(897), 5, 20)
+    #train_model_V1(input_pipeline(897), 40)
+    test_model(input_pipeline(576, test = True), '3.h5')
 
 '''
 Record during training:
