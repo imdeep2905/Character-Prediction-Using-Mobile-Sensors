@@ -1,0 +1,9 @@
+def train_model_V1(dataset, epochs):  
+model = Sequential([
+	LSTM(100, batch_input_shape = (1,None, 12),stateful=True),
+	Dense(64, activation = "relu"),
+	Dense(36, activation = "softmax")
+])
+loss_fn = tf.keras.losses.CategoricalCrossentropy()
+optimizer = tf.keras.optimizers.Adam()
+model.compile(loss = loss_fn, optimizer = optimizer, metrics = ["accuracy"])
