@@ -97,15 +97,15 @@ def test_model(dataset, model_name):
     
 def train_model_V1(dataset, epochs):  
     model = Sequential([
-        GRU(144, return_sequences = True, input_shape = (None, 12), recurrent_dropout = 0.15),
-        GRU(90, return_sequences = False, dropout = 0.20, recurrent_dropout = 0.10),
+        LSTM(144, return_sequences = True, input_shape = (None, 12), recurrent_dropout = 0.35, dropout = 0.3),
+        LSTM(90, return_sequences = False, dropout = 0.5, recurrent_dropout = 0.3),
         Dense(72, activation = "elu"),
-        Dropout(0.15),
+        Dropout(0.4),
         Dense(36, activation = "softmax")
     ])
-    loss_fn = tf.keras.losses.CategoricalCrossentropy()
+    #loss_fn = tf.keras.losses.CategoricalCrossentropy()
     optimizer = tf.keras.optimizers.Adam()
-    model.compile(loss = loss_fn, optimizer = optimizer, metrics = ["accuracy"])
+    model.compile(loss = 'kullback_leibler_divergence', optimizer = optimizer, metrics = ["accuracy"])
     print(model.summary())
     for ep in range(epochs):
         avgacc = 0.
@@ -116,7 +116,7 @@ def train_model_V1(dataset, epochs):
                 avgacc += result.history['accuracy'][0]
         print()
         print(f'Completed epoch. {ep} ')
-        model.save('current_new.h5')
+        model.save(f'epoch{ep}.h5')
         print(f'Current model saved with Acc = {avgacc / len(dataset)}')
         print()
         
@@ -147,8 +147,8 @@ if __name__ == "__main__":
     use_gpu(False)
     #DO NOT CHANGE ANYTHING STARTING FROM HERE!
     #continue_training('1.h5', input_pipeline(897), 5, 20)
-    #train_model_V1(input_pipeline(897), 40)
-    test_model(input_pipeline(576, test = True), '3.h5')
+    #train_model_V1(input_pipeline(897), 50)
+    test_model(input_pipeline(576, test = True), 'model.h5')
 
 '''
 Record during training:

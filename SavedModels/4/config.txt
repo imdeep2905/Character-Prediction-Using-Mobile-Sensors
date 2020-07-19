@@ -1,0 +1,10 @@
+model = Sequential([
+	LSTM(144, return_sequences = True, input_shape = (None, 12), recurrent_dropout = 0.35, dropout = 0.3),
+	LSTM(90, return_sequences = False, dropout = 0.5, recurrent_dropout = 0.3),
+	Dense(72, activation = "elu"),
+	Dropout(0.4),
+	Dense(36, activation = "softmax")
+])
+#loss_fn = tf.keras.losses.CategoricalCrossentropy()
+optimizer = tf.keras.optimizers.Adam()
+model.compile(loss = 'kullback_leibler_divergence', optimizer = optimizer, metrics = ["accuracy"])
