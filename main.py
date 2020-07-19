@@ -9,14 +9,25 @@ from sklearn.preprocessing import MinMaxScaler, StandardScaler
 import numpy as np
 from pathlib import Path
 from io import StringIO
+import matplotlib.pyplot as plt
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import classification_report
+import matplotlib.ticker as ticker
+import seaborn as sn
 import os
 
 ROOT = Path("./ProcessedDataset3")
-
+y_true = []
+y_pred = []
 CLASSES = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 
            'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
            'U', 'V', 'W', 'X', 'Y', 'Z']
+
+CLASSES1 = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+           '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', 
+           '20', '21', '22', '23', '24', '25', '26', '27', '28', '29',
+           '30', '31', '32', '33', '34', '35']
 
 def use_gpu(gpu):
     if not gpu:
@@ -84,7 +95,8 @@ def test_model(dataset, model_name):
     '''
     model = tf.keras.models.load_model(model_name)
     print(model.summary())
-    total, cnt = 0. , 0.
+    total, cnt = 0. , 0
+    '''
     for d in dataset:
         try:
             res = model.evaluate(d)
@@ -92,7 +104,27 @@ def test_model(dataset, model_name):
             cnt += 1
         except Exception:
             pass
-    print('Avg Accuracy : ', total / cnt)
+    '''
+    for ds in dataset:
+        for X,Y in ds:
+            a = np.asarray(Y)
+            y_true.append(a.argmax())
+            b = model.predict(X)
+            y_pred.append(b.argmax())
+            cnt+=1
+    matrix = confusion_matrix(y_true,y_pred)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    sn.heatmap(matrix,cmap='Blues')
+    ax.xaxis.set_major_locator(ticker.MultipleLocator(1))
+    ax.yaxis.set_major_locator(ticker.MultipleLocator(1))
+    ax.set_yticklabels(['']+CLASSES)
+    ax.set_xticklabels(['']+CLASSES)
+    plt.ylabel("True label")
+    plt.xlabel("Predicted label")
+    plt.title("Confusion matrix")
+    plt.show()
+    print(classification_report(y_true,y_pred,target_names= CLASSES))
     return  
     
 def train_model_V1(dataset, epochs):  
@@ -147,8 +179,8 @@ if __name__ == "__main__":
     use_gpu(False)
     #DO NOT CHANGE ANYTHING STARTING FROM HERE!
     #continue_training('1.h5', input_pipeline(897), 5, 20)
-    #train_model_V1(input_pipeline(897), 50)
-    test_model(input_pipeline(576, test = True), 'model.h5')
+    #train_model_V1(input_pipeline(897), 40)
+    test_model(input_pipeline(576, test = True), 'StatefullLSTM.h5')
 
 '''
 Record during training:
