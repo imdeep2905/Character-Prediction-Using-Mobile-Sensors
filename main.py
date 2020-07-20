@@ -50,7 +50,6 @@ def input_pipeline(split, test = False):
             label = str(name.numpy())[str(name.numpy()).find('\\') + 2]
             X = (pd.read_csv(Path(str(name.numpy(), 'utf-8'))).values)
             X = MinMaxScaler(feature_range=(-1, 1)).fit_transform(X)
-            X = StandardScaler().fit_transform(X)
             X = np.expand_dims(X, axis = 0)
             X = np.expand_dims(X, axis = 0)
             Y = np.zeros((1, 36))
