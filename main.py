@@ -2,7 +2,7 @@ import sys
 sys.setrecursionlimit(1000000007)
 import pandas as pd
 from tensorflow import keras
-from tensorflow.keras.layers import LSTM,Dense,Softmax,Input,Lambda, Flatten, Reshape, Lambda, GRU, Dropout, BatchNormalization
+from tensorflow.keras.layers import LSTM,Dense,Softmax,Input,Lambda, Flatten, Reshape, Lambda, GRU, Dropout, BatchNormalization,Bidirectional
 from tensorflow.keras import Sequential
 import tensorflow as tf
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
@@ -95,7 +95,6 @@ def test_model(dataset, model_name):
     model = tf.keras.models.load_model(model_name)
     print(model.summary())
     total, cnt = 0. , 0
-    '''
     for d in dataset:
         try:
             res = model.evaluate(d)
@@ -124,20 +123,21 @@ def test_model(dataset, model_name):
     plt.title("Confusion matrix")
     plt.show()
     print(classification_report(y_true,y_pred,target_names= CLASSES))
+    '''
     return  
     
 def train_model_V1(dataset, epochs):  
     model = Sequential([
-        LSTM(144, return_sequences = True, input_shape = (None, 12), recurrent_dropout = 0.35, dropout = 0.3),
-        LSTM(90, return_sequences = False, dropout = 0.5, recurrent_dropout = 0.3),
+        Bidirectional(LSTM(144, return_sequences = True, input_shape = (None, 12), dropout = 0.25)),
+        Bidirectional(LSTM(90, return_sequences = False, dropout = 0.20)),
         Dense(72, activation = "elu"),
-        Dropout(0.4),
+        Dropout(0.15),
         Dense(36, activation = "softmax")
     ])
     #loss_fn = tf.keras.losses.CategoricalCrossentropy()
     optimizer = tf.keras.optimizers.Adam()
-    model.compile(loss = 'kullback_leibler_divergence', optimizer = optimizer, metrics = ["accuracy"])
-    print(model.summary())
+    model.compile(loss = 'categorical_crossentropy', optimizer = optimizer, metrics = ["accuracy"])
+    #print(model.summary())
     for ep in range(epochs):
         avgacc = 0.
         for ds in dataset:
@@ -179,7 +179,7 @@ if __name__ == "__main__":
     #DO NOT CHANGE ANYTHING STARTING FROM HERE!
     #continue_training('1.h5', input_pipeline(897), 5, 20)
     #train_model_V1(input_pipeline(897), 40)
-    test_model(input_pipeline(576, test = True), 'StatefullLSTM.h5')
+    test_model(input_pipeline(576, test = True), 'epoch26.h5')
 
 '''
 Record during training:
