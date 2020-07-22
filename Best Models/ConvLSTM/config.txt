@@ -1,0 +1,6 @@
+model = Sequential()
+model.add(ConvLSTM2D(filters=64,kernel_size=(3,3),activation='tanh',padding='same',input_shape=(1,1,572,12),dropout=0.20))
+model.add(Flatten())
+model.add(Dense(100,activation='elu'))
+model.add(Dropout(0.3))
+model.add(Dense(36,activation='softmax'))
