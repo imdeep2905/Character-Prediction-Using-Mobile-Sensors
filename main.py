@@ -130,10 +130,10 @@ def test_model(dataset, model_name):
     
 def train_model_V1(dataset, epochs):  
     model = Sequential([
-        LSTM(144, return_sequences = True, input_shape = (None, 12), recurrent_dropout = 0.35, dropout = 0.4),
-        LSTM(90, return_sequences = False, recurrent_dropout = 0.3, dropout = 0.35),
+        GRU(144, return_sequences = True, input_shape = (None, 12), recurrent_dropout = 0.2, dropout = 0.3),
+        GRU(90, return_sequences = False, recurrent_dropout = 0.1, dropout = 0.25),
         Dense(72, activation = "elu"),
-        Dropout(0.3),
+        Dropout(0.4),
         Dense(36, activation = "softmax")
     ])
     optimizer = tf.keras.optimizers.Adam()
@@ -180,8 +180,8 @@ if __name__ == "__main__":
     use_gpu(False)
     #DO NOT CHANGE ANYTHING STARTING FROM HERE!
     #continue_training('1.h5', input_pipeline(897), 5, 20)
-    #train_model_V1(input_pipeline(897), 50)
-    test_model(input_pipeline(576, test = True), 'epoch29.h5')
+    train_model_V1(input_pipeline(897), 50)
+    #test_model(input_pipeline(576, test = True), 'epoch29.h5')
 
 '''
 Record during training:

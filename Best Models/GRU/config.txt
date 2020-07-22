@@ -1,0 +1,10 @@
+model = Sequential([
+	GRU(144, return_sequences = True, input_shape = (None, 12), recurrent_dropout = 0.2, dropout = 0.3),
+	GRU(90, return_sequences = False, recurrent_dropout = 0.1, dropout = 0.25),
+	Dense(72, activation = "elu"),
+	Dropout(0.4),
+	Dense(36, activation = "softmax")
+])
+optimizer = tf.keras.optimizers.Adam()
+loss_fn = tf.keras.losses.CategoricalCrossentropy()
+model.compile(loss = loss_fn, optimizer = optimizer, metrics = ["accuracy"])
