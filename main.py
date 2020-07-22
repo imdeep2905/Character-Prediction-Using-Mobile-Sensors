@@ -95,7 +95,7 @@ def test_model(dataset, model_name):
     model = tf.keras.models.load_model(model_name)
     print(model.summary())
     total, cnt = 0. , 0
-    #'''
+    '''
     for d in dataset:
         try:
             res = model.evaluate(d)
@@ -103,7 +103,6 @@ def test_model(dataset, model_name):
             cnt += 1
         except Exception:
             pass
-    #'''
     '''
     for ds in dataset:
         for X,Y in ds:
@@ -115,7 +114,9 @@ def test_model(dataset, model_name):
     matrix = confusion_matrix(y_true,y_pred)
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    sn.heatmap(matrix,cmap='Blues')
+    res = sn.heatmap(matrix,cmap='Blues')
+    for _,spine in res.spines.items():
+        spine.set_visible(True)
     ax.xaxis.set_major_locator(ticker.MultipleLocator(1))
     ax.yaxis.set_major_locator(ticker.MultipleLocator(1))
     ax.set_yticklabels(['']+CLASSES)
@@ -126,7 +127,6 @@ def test_model(dataset, model_name):
     plt.show()
     print(classification_report(y_true,y_pred,target_names= CLASSES))
     return  
-    '''
     
 def train_model_V1(dataset, epochs):  
     model = Sequential([
@@ -180,8 +180,8 @@ if __name__ == "__main__":
     use_gpu(False)
     #DO NOT CHANGE ANYTHING STARTING FROM HERE!
     #continue_training('1.h5', input_pipeline(897), 5, 20)
-    train_model_V1(input_pipeline(897), 50)
-    #test_model(input_pipeline(576, test = True), 'epoch29.h5')
+    #train_model_V1(input_pipeline(897), 50)
+    test_model(input_pipeline(576, test = True), 'epoch29.h5')
 
 '''
 Record during training:
