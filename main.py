@@ -124,7 +124,7 @@ def test_model(dataset, model_name):
     plt.ylabel("True label")
     plt.xlabel("Predicted label")
     plt.title("Confusion matrix")
-    plt.show()
+    plt.savefig("lstm.png")
     print(classification_report(y_true,y_pred,target_names= CLASSES))
     return  
     
@@ -181,7 +181,7 @@ if __name__ == "__main__":
     #DO NOT CHANGE ANYTHING STARTING FROM HERE!
     #continue_training('1.h5', input_pipeline(897), 5, 20)
     #train_model_V1(input_pipeline(897), 50)
-    test_model(input_pipeline(576, test = True), 'epoch29.h5')
+    test_model(input_pipeline(576, test = True), 'lstm.h5')
 
 '''
 Record during training:
